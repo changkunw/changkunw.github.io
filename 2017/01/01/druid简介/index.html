@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8" >
+    <meta name="baidu-site-verification" content="dIcXMeY8Ya" />
+    
+    <title>druid简介 | Will&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" >
+    <meta name="keywords" content="willck, hadoop, spark, 王昌坤, 数据研发" >
+    <meta name="description" content="will's blog" >
+
+    
+    <link rel="alternative" href="/atom.xml" title="Will&#39;s Blog" type="application/atom+xml" >
+    
+    
+    <link rel="shortcut icon" href="/favicon.ico" >
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <!--[if lt IE 9]>
+    <script src="/js/html5.js"></script>
+    <![endif]-->
+    
+<script>
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?a3a28a596c48055312f546b98edef6cb";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+</head>
+
+<body class="home">
+    <!--[if lt IE 9]>
+    <div class="browsehappy">
+        当前网页 <strong>不支持</strong>
+        你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/">升级你的浏览器</a>.
+    </div>
+    <![endif]-->
+
+    <!-- 博客头部 -->
+    <header class="header">
+    <section class="container header-main">
+        <div class="logo">
+            <a href="/">
+                <div class="cover">
+                    <span class="name">Will&#39;s Blog</span>
+                    <span class="description">Helo_Kun</span>
+                </div>
+            </a>
+        </div>
+        <div class="dropnav icon-paragraph-justify" id="JELON__btnDropNav"></div>
+        <ul class="menu hidden" id="JELON__menu">
+            
+            <li rel="/2017/01/01/druid简介/index.html" class="item ">
+                <a href="/" title="首页" class="icon-home">&nbsp;首页</a>
+            </li>
+            
+            <li rel="/2017/01/01/druid简介/index.html" class="item ">
+                <a href="/home/" title="心得体会" class="icon-lab">&nbsp;心得体会</a>
+            </li>
+            
+            <li rel="/2017/01/01/druid简介/index.html" class="item ">
+                <a href="/about/" title="关于" class="icon-about">&nbsp;关于</a>
+            </li>
+            
+            <li rel="/2017/01/01/druid简介/index.html" class="item ">
+                <a href="/comment/" title="留言" class="icon-comment">&nbsp;留言</a>
+            </li>
+            
+        </ul>
+        <div class="profile clearfix">
+            <div class="feeds fl">
+                
+                
+                <p class="links">
+                    
+                        <a href="https://github.com/changkunw" target="_blank">Github</a>
+                        |
+                    
+                        <a href="http://tongji.baidu.com/web/welcome/login" target="_blank">百度统计</a>
+                        
+                    
+                </p>
+                <p class="sns">
+                    
+                        <a href="http://weibo.com/wangchangkun" class="sinaweibo" target="_blank"><b>■</b> 新浪微博</a>
+                    
+                        <a href="https://www.facebook.com/profile.php?id=100015370065812" class="qqweibo" target="_blank"><b>■</b> Facebook</a>
+                    
+                    <a href="javascript: void(0);" class="wechat">
+                        <b>■</b>
+                        公众号
+                        <span class="popover">
+                            <img src="/img/wechat_mp.jpg" width="120" height="120" alt="我的微信订阅号">
+                            <i class="arrow"></i>
+                        </span>
+                    </a>
+                </p>
+                
+            </div>
+            <div class="avatar fr">
+                <img src="/img/me.jpg" alt="avatar" title="Jelon" >
+            </div>
+        </div>
+    </section>
+</header>
+
+
+    <!-- 博客正文 -->
+    <div class="container body clearfix">
+        <section class="content">
+            <div class="content-main widget">
+                <!-- 文章页 -->
+<!-- 文章 -->
+<article class="post article">
+    <header class="text-center">
+        <h3 class="post-title"><span>druid简介</span></h3>
+    </header>
+    <p class="post-meta text-center">
+        Will 发表于
+        <time datetime="2017-01-01T14:36:16.000Z">2017-01-01</time>
+    </p>
+    <div class="post-content">
+        <h2 id="什么是druid"><a href="#什么是druid" class="headerlink" title="什么是druid"></a>什么是druid</h2><p>　　首先说一下druid这个名字，可能大家都知道阿里巴巴有个开源的框架也加druid，但是我这里说的druid并不是阿里巴巴的druid,那个是数据库连接池，这里的druid是druid-io。<br>　　druid是一个为大型冷数据集上实时探索查询而设计的开源数据分析和存储系统，提供极具成本效益并且永远在线的实时数据摄取和任意数据处理。所以它主要是一个olap系统。<br><a id="more"></a><br>　　如果你现在在寻找一个实时的olap框架，那么druid可以纳入你的考虑范围之内。使用druid可以加载离线数据，也可以加载实时数据，加载数据之前，需要提前配置好指标和维度，用它的主要原因是由于它可以处理海量级数据，并且较快。<br>　　druid使用上其实还是不复杂，但是配置繁多，使用的时候要小心点。扩展集群比较方便，它依赖于zookeeper，所以添加的节点只需要在zookeeper中注册即可。</p>
+<h2 id="druid组件"><a href="#druid组件" class="headerlink" title="druid组件"></a>druid组件</h2><h3 id="Overlord-Node-Indexing-Service"><a href="#Overlord-Node-Indexing-Service" class="headerlink" title="Overlord Node (Indexing Service)"></a>Overlord Node (Indexing Service)</h3><p>Overlord会形成一个加载批处理和实时数据到系统中的集群，同时会对存储在系统中的数据变更（也称为索引服务）做出响应。另外，还包含了Middle Manager和Peons，一个Peon负责执行单个task，而Middle Manager负责管理这些Peons。意思就是这个组件主要是来建立索引的。</p>
+<h3 id="Coordinator-Node"><a href="#Coordinator-Node" class="headerlink" title="Coordinator Node"></a>Coordinator Node</h3><p>监控Historical节点组，以确保数据可用、可复制，并且在一般的“最佳”配置。它们通过从MySQL读取数据段的元数据信息，来决定哪些数据段应该在集群中被加载，使用Zookeeper来确定哪个Historical节点存在，并且创建Zookeeper条目告诉Historical节点加载和删除新数据段。</p>
+<h3 id="Historical-Node"><a href="#Historical-Node" class="headerlink" title="Historical Node"></a>Historical Node</h3><p>是对“historical”数据（非实时）进行处理存储和查询的地方。Historical节点响应从Broker节点发来的查询，并将结果返回给broker节点。它们在Zookeeper的管理下提供服务，并使用Zookeeper监视信号加载或删除新数据段。</p>
+<h3 id="Broker-Node"><a href="#Broker-Node" class="headerlink" title="Broker Node"></a>Broker Node</h3><p>接收来自外部客户端的查询，并将这些查询转发到Realtime和Historical节点。当Broker节点收到结果，它们将合并这些结果并将它们返回给调用者。由于了解拓扑，Broker节点使用Zookeeper来确定哪些Realtime和Historical节点的存在。</p>
+<h3 id="Real-time-Node"><a href="#Real-time-Node" class="headerlink" title="Real-time Node"></a>Real-time Node</h3><p>实时摄取数据，它们负责监听输入数据流并让其在内部的Druid系统立即获取，Realtime节点同样只响应broker节点的查询请求，返回查询结果到broker节点。旧数据会被从Realtime节点转存至Historical节点。</p>
+<h3 id="ZooKeeper"><a href="#ZooKeeper" class="headerlink" title="ZooKeeper"></a>ZooKeeper</h3><p>为集群服务发现和维持当前的数据拓扑而服务；</p>
+<h3 id="Deep-Storage"><a href="#Deep-Storage" class="headerlink" title="Deep Storage"></a>Deep Storage</h3><p>即数据的存放，可以选在存在本地(需要共享目录)，也可以放在hdfs或者s3</p>
+<h3 id="Mysql"><a href="#Mysql" class="headerlink" title="Mysql"></a>Mysql</h3><p>元数据存放的位置的地方。</p>
+<h2 id="数据查询"><a href="#数据查询" class="headerlink" title="数据查询"></a>数据查询</h2><p>数据查询都是通过查询broker节点，它提供了restApi,还是比较方便，但是有很多其他框架支持druid的查询，比如plyql（sql）、pivot（druid比较好的数据展示ui）、superset（更炫酷的UI）</p>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p><img src="/img/druidstruct.jpg" alt=""></p>
+
+    </div>
+    <p class="post-meta">
+        <span class="post-cat">分类：
+            <a class="cat-link" href="/categories/大数据技术/">大数据技术</a>
+        </span>
+        <span class="post-tags">
+            标签：
+            
+    
+        <a href="/tags/druid-io/" title="druid-io">druid-io</a>
+    
+
+        </span>
+    </p>
+</article>
+<div class="article-share clearfix text-center">
+    <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</div>
+
+<!-- 上一篇/下一篇 -->
+
+<div class="article-nav clearfix">
+    
+    <span class="prev fl">
+        上一篇<br >
+        <a href="/2017/03/12/sparkStreamign开发总结/">
+            
+                sparkStreamign开发总结
+            
+        </a>
+    </span>
+    
+
+    
+    <span class="next fr">
+        下一篇<br >
+        <a href="/2016/12/12/greenplum运维/">
+            
+                greenplum运维
+            
+        </a>
+    </span>
+    
+</div>
+
+<!-- 文章评论 -->
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2095536"></script>
+<!-- UY END -->
+            </div>
+
+        </section>
+        <!-- 侧栏部分 -->
+<aside class="sidebar">
+    <section class="widget">
+        <h3 class="widget-hd"><strong>文章分类</strong></h3>
+        <!-- 文章分类 -->
+<ul class="widget-bd">
+    
+    <li>
+        <a href="/categories/开源类库/">开源类库</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/容器技术/">容器技术</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/编程语言/">编程语言</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/数据库/">数据库</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/大数据技术/">大数据技术</a>
+        <span class="badge">(5)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/工具使用/">工具使用</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/生活琐事/">生活琐事</a>
+        <span class="badge">(3)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/Web技术/">Web技术</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/资源分享/">资源分享</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/源码阅读/">源码阅读</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-hd"><strong>热门标签</strong></h3>
+        <!-- 文章标签 -->
+<div class="widget-bd tag-wrap">
+  
+    <a class="tag-item" href="/tags/java/" title="java">java (1)</a>
+  
+    <a class="tag-item" href="/tags/avro/" title="avro">avro (1)</a>
+  
+    <a class="tag-item" href="/tags/docker/" title="docker">docker (1)</a>
+  
+    <a class="tag-item" href="/tags/scala/" title="scala">scala (2)</a>
+  
+    <a class="tag-item" href="/tags/代码段/" title="代码段">代码段 (1)</a>
+  
+    <a class="tag-item" href="/tags/GreenPlum/" title="GreenPlum">GreenPlum (2)</a>
+  
+    <a class="tag-item" href="/tags/运维/" title="运维">运维 (1)</a>
+  
+    <a class="tag-item" href="/tags/druid-io/" title="druid-io">druid-io (1)</a>
+  
+    <a class="tag-item" href="/tags/git/" title="git">git (1)</a>
+  
+    <a class="tag-item" href="/tags/生活/" title="生活">生活 (3)</a>
+  
+    <a class="tag-item" href="/tags/nginx/" title="nginx">nginx (1)</a>
+  
+    <a class="tag-item" href="/tags/资源/" title="资源">资源 (1)</a>
+  
+    <a class="tag-item" href="/tags/学习/" title="学习">学习 (1)</a>
+  
+    <a class="tag-item" href="/tags/parquet/" title="parquet">parquet (2)</a>
+  
+    <a class="tag-item" href="/tags/hdfs/" title="hdfs">hdfs (1)</a>
+  
+    <a class="tag-item" href="/tags/SparkStreaming/" title="SparkStreaming">SparkStreaming (1)</a>
+  
+    <a class="tag-item" href="/tags/spark/" title="spark">spark (2)</a>
+  
+    <a class="tag-item" href="/tags/源码/" title="源码">源码 (1)</a>
+  
+    <a class="tag-item" href="/tags/Spark/" title="Spark">Spark (1)</a>
+  
+</div>
+    </section>
+    
+
+    
+    <!-- 我的微博 -->
+    <section class="widget">
+        <h3 class="widget-hd"><strong>我的微博</strong></h3>
+        <div class="widget-bd" style="position: relative;">
+  <div id="myWeiboLoading" class="text-center" style="position:absolute;top:0;left:0;right:0;bottom:0;line-height:50px;font-size:12px;background-color:#fff;z-index:9;">微博加载中...</div>
+  <iframe id="myWeibo" width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=2552539742&verifier=78b487b1&dpc=1"></iframe>
+  <script>
+  (function () {
+    var oMyWeibo = document.getElementById('myWeibo');
+    var oMyWeiboLoading = document.getElementById('myWeiboLoading');
+    var isIE = /msie/i.test(navigator.userAgent) && !window.opera;
+    var timer = null;
+    if (isIE) {
+      oMyWeibo.onreadystatechange = function(){
+        if(oMyWeibo.readyState === 'loaded' || oMyWeibo.readyState === 'complete'){
+          timer = setTimeout(function () {
+            oMyWeiboLoading.parentNode.removeChild(oMyWeiboLoading);
+            timer = null;
+          }, 300);
+        }
+      };
+    } else {
+      oMyWeibo.onload = function () {
+        timer = setTimeout(function () {
+          oMyWeiboLoading.parentNode.removeChild(oMyWeiboLoading);
+          timer = null;
+        }, 300);
+      };
+    }
+  })();
+  </script>
+</div>
+    </section>
+    
+
+    
+</aside>
+<!-- / 侧栏部分 -->
+    </div>
+
+    <!-- 博客底部 -->
+    <footer class="footer">
+    &copy;
+    
+        2016-2017
+    
+
+    <a href="/">Jelon Loves You</a>
+</footer>
+<div class="back-to-top" id="JELON__backToTop" title="返回顶部">返回顶部</div>
+<!-- 添加百度自动推送 --
+
+
+    <!--博客js脚本 -->
+    <!-- 这里放网站js脚本 -->
+<script src="/js/main.js"></script>
+</body>
+</html>

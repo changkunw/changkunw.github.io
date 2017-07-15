@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8" >
+    <meta name="baidu-site-verification" content="dIcXMeY8Ya" />
+    
+    <title>sparkSubmit_yarnCluster | Will&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" >
+    <meta name="keywords" content="willck, hadoop, spark, 王昌坤, 数据研发" >
+    <meta name="description" content="will's blog" >
+
+    
+    <link rel="alternative" href="/atom.xml" title="Will&#39;s Blog" type="application/atom+xml" >
+    
+    
+    <link rel="shortcut icon" href="/favicon.ico" >
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <!--[if lt IE 9]>
+    <script src="/js/html5.js"></script>
+    <![endif]-->
+    
+<script>
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?a3a28a596c48055312f546b98edef6cb";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+</head>
+
+<body class="home">
+    <!--[if lt IE 9]>
+    <div class="browsehappy">
+        当前网页 <strong>不支持</strong>
+        你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/">升级你的浏览器</a>.
+    </div>
+    <![endif]-->
+
+    <!-- 博客头部 -->
+    <header class="header">
+    <section class="container header-main">
+        <div class="logo">
+            <a href="/">
+                <div class="cover">
+                    <span class="name">Will&#39;s Blog</span>
+                    <span class="description">Helo_Kun</span>
+                </div>
+            </a>
+        </div>
+        <div class="dropnav icon-paragraph-justify" id="JELON__btnDropNav"></div>
+        <ul class="menu hidden" id="JELON__menu">
+            
+            <li rel="/2016/06/28/sparkSubmit-yarnCluster/index.html" class="item ">
+                <a href="/" title="首页" class="icon-home">&nbsp;首页</a>
+            </li>
+            
+            <li rel="/2016/06/28/sparkSubmit-yarnCluster/index.html" class="item ">
+                <a href="/home/" title="心得体会" class="icon-lab">&nbsp;心得体会</a>
+            </li>
+            
+            <li rel="/2016/06/28/sparkSubmit-yarnCluster/index.html" class="item ">
+                <a href="/about/" title="关于" class="icon-about">&nbsp;关于</a>
+            </li>
+            
+            <li rel="/2016/06/28/sparkSubmit-yarnCluster/index.html" class="item ">
+                <a href="/comment/" title="留言" class="icon-comment">&nbsp;留言</a>
+            </li>
+            
+        </ul>
+        <div class="profile clearfix">
+            <div class="feeds fl">
+                
+                
+                <p class="links">
+                    
+                        <a href="https://github.com/changkunw" target="_blank">Github</a>
+                        |
+                    
+                        <a href="http://tongji.baidu.com/web/welcome/login" target="_blank">百度统计</a>
+                        
+                    
+                </p>
+                <p class="sns">
+                    
+                        <a href="http://weibo.com/wangchangkun" class="sinaweibo" target="_blank"><b>■</b> 新浪微博</a>
+                    
+                        <a href="https://www.facebook.com/profile.php?id=100015370065812" class="qqweibo" target="_blank"><b>■</b> Facebook</a>
+                    
+                    <a href="javascript: void(0);" class="wechat">
+                        <b>■</b>
+                        公众号
+                        <span class="popover">
+                            <img src="/img/wechat_mp.jpg" width="120" height="120" alt="我的微信订阅号">
+                            <i class="arrow"></i>
+                        </span>
+                    </a>
+                </p>
+                
+            </div>
+            <div class="avatar fr">
+                <img src="/img/me.jpg" alt="avatar" title="Jelon" >
+            </div>
+        </div>
+    </section>
+</header>
+
+
+    <!-- 博客正文 -->
+    <div class="container body clearfix">
+        <section class="content">
+            <div class="content-main widget">
+                <!-- 文章页 -->
+<!-- 文章 -->
+<article class="post article">
+    <header class="text-center">
+        <h3 class="post-title"><span>sparkSubmit_yarnCluster</span></h3>
+    </header>
+    <p class="post-meta text-center">
+        Will 发表于
+        <time datetime="2016-06-28T10:59:51.000Z">2016-06-28</time>
+    </p>
+    <div class="post-content">
+        <p>提交任务的时候都是通过spark-submit提交的，而spark-submit提交的方式最终执行的都是sparkSubmit这个类,常见的有<code>yarn-cluster</code>、<code>rest</code>、<code>client</code>。这里主要看下<code>yarn-cluster</code><br><a id="more"></a></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private[spark] def printVersionAndExit(): Unit = &#123;</span><br><span class="line">  printStream.println("""Welcome to</span><br><span class="line">    ____              __</span><br><span class="line">   / __/__  ___ _____/ /__</span><br><span class="line">  _\ \/ _ \/ _ `/ __/  '_/</span><br><span class="line"> /___/ .__/\_,_/_/ /_/\_\   version %s</span><br><span class="line">    /_/</span><br><span class="line">                      """.format(SPARK_VERSION))</span><br><span class="line">  printStream.println("Type --help for more information.")</span><br><span class="line">  exitFn(0)</span><br></pre></td></tr></table></figure>
+<p>打开这个代码，一看到这个图案你就能想得到，什么<code>spark-shell</code>、<code>spark-submit</code>、<code>kill</code>等其实都是通过这个类来实现的。</p>
+<p>main方式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">val appArgs = new SparkSubmitArguments(args)</span><br><span class="line">    if (appArgs.verbose) &#123;</span><br><span class="line">      // scalastyle:off println</span><br><span class="line">      printStream.println(appArgs)</span><br><span class="line">      // scalastyle:on println</span><br><span class="line">    &#125;</span><br><span class="line">    appArgs.action match &#123;</span><br><span class="line">      case SparkSubmitAction.SUBMIT =&gt; submit(appArgs)</span><br><span class="line">      case SparkSubmitAction.KILL =&gt; kill(appArgs)</span><br><span class="line">      case SparkSubmitAction.REQUEST_STATUS =&gt; requestStatus(appArgs)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>main方法里面有个<code>SparkSubmitArguments</code>方法，这个肯定就是匹配spark任务提交时候的参数了。就是你写到你的sparkConf里面的东西</p>
+<p>再看submit方法：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">submit</span></span>(args: <span class="type">SparkSubmitArguments</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">	<span class="comment">//这个解析的方法要重点看</span></span><br><span class="line">    <span class="keyword">val</span> (childArgs, childClasspath, sysProps, childMainClass) = prepareSubmitEnvironment(args)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">doRunMain</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">      <span class="comment">//····</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        runMain(childArgs, childClasspath, sysProps, childMainClass, args.verbose)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">if</span> (args.isStandaloneCluster &amp;&amp; args.useRest) &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">       <span class="comment">//····</span></span><br><span class="line">        doRunMain()</span><br><span class="line">      &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">        <span class="comment">//····</span></span><br><span class="line">          submit(args)</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="comment">// In all other modes, just run the main class as prepared</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      doRunMain()</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>反正最后都是要执行<code>runMain</code>方法，先来看我上面说的重点要看的那个方法<code>prepareSubmitEnvironment</code></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> childArgs = <span class="keyword">new</span> <span class="type">ArrayBuffer</span>[<span class="type">String</span>]()</span><br><span class="line">    <span class="keyword">val</span> childClasspath = <span class="keyword">new</span> <span class="type">ArrayBuffer</span>[<span class="type">String</span>]()</span><br><span class="line">    <span class="keyword">val</span> sysProps = <span class="keyword">new</span> <span class="type">HashMap</span>[<span class="type">String</span>, <span class="type">String</span>]()</span><br><span class="line">    <span class="keyword">var</span> childMainClass = <span class="string">""</span></span><br><span class="line"> <span class="keyword">val</span> clusterManager: <span class="type">Int</span> = args.master <span class="keyword">match</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> m <span class="keyword">if</span> m.startsWith(<span class="string">"yarn"</span>) =&gt; <span class="type">YARN</span></span><br><span class="line">      <span class="keyword">case</span> m <span class="keyword">if</span> m.startsWith(<span class="string">"spark"</span>) =&gt; <span class="type">STANDALONE</span></span><br><span class="line">      <span class="keyword">case</span> m <span class="keyword">if</span> m.startsWith(<span class="string">"mesos"</span>) =&gt; <span class="type">MESOS</span></span><br><span class="line">      <span class="keyword">case</span> m <span class="keyword">if</span> m.startsWith(<span class="string">"local"</span>) =&gt; <span class="type">LOCAL</span></span><br><span class="line">      <span class="keyword">case</span> _ =&gt; printErrorAndExit(<span class="string">"Master must start with yarn, spark, mesos, or local"</span>); <span class="number">-1</span></span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//.....</span></span><br><span class="line">	<span class="keyword">if</span> (args.useRest) &#123;</span><br><span class="line">        childMainClass = <span class="string">"org.apache.spark.deploy.rest.RestSubmissionClient"</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// In legacy standalone cluster mode, use Client as a wrapper around the user class</span></span><br><span class="line">        childMainClass = <span class="string">"org.apache.spark.deploy.Client"</span></span><br><span class="line">	<span class="keyword">if</span> (isYarnCluster) &#123;</span><br><span class="line">      childMainClass = <span class="string">"org.apache.spark.deploy.yarn.Client"</span></span><br></pre></td></tr></table></figure>
+<p>我主要是想说的这个childMainClass,这里的MainClass不是你写的spark任务的里面的你自己的那个class，而是spark自己写的，<code>RestSubmissionClient，deploy.Client，yarn.Client</code>是这三个中的一个，为什么这里主要强调这个地方，下面继续说。</p>
+<p>runMain方法：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">runMain</span></span>(</span><br><span class="line">      childArgs: <span class="type">Seq</span>[<span class="type">String</span>],</span><br><span class="line">      childClasspath: <span class="type">Seq</span>[<span class="type">String</span>],</span><br><span class="line">      sysProps: <span class="type">Map</span>[<span class="type">String</span>, <span class="type">String</span>],</span><br><span class="line">      childMainClass: <span class="type">String</span>,</span><br><span class="line">      verbose: <span class="type">Boolean</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">// scalastyle:off println</span></span><br><span class="line">    <span class="keyword">if</span> (verbose) &#123;</span><br><span class="line">      printStream.println(<span class="string">s"Main class:\n<span class="subst">$childMainClass</span>"</span>)</span><br><span class="line">      printStream.println(<span class="string">s"Arguments:\n<span class="subst">$&#123;childArgs.mkString("\n")&#125;</span>"</span>)</span><br><span class="line">      printStream.println(<span class="string">s"System properties:\n<span class="subst">$&#123;sysProps.mkString("\n")&#125;</span>"</span>)</span><br><span class="line">      printStream.println(<span class="string">s"Classpath elements:\n<span class="subst">$&#123;childClasspath.mkString("\n")&#125;</span>"</span>)</span><br><span class="line">      printStream.println(<span class="string">"\n"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// scalastyle:on println</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//....</span></span><br><span class="line">    <span class="keyword">var</span> mainClass: <span class="type">Class</span>[_] = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      mainClass = <span class="type">Utils</span>.classForName(childMainClass)</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">val</span> mainMethod = mainClass.getMethod(<span class="string">"main"</span>, <span class="keyword">new</span> <span class="type">Array</span>[<span class="type">String</span>]</span><br><span class="line">      mainMethod.invoke(<span class="literal">null</span>, childArgs.toArray)</span><br></pre></td></tr></table></figure>
+<p>看到没，最终是反射了<code>childMainClass</code>然后执行了里面的Main方法，<strong><em>不是你自己写的那个main</em></strong>方法，为啥我要强调这个，因为我也看了网上有人写spark-submit任务提交的源码分析，我擦，他居然写的是这个invoke执行的是自己写的main方法，这简直不负责任了吧，不多说了，谷歌一收就能收出来，排在最前面的，给个链接好了：<a href="http://www.jianshu.com/p/0b19b2b954b6" target="_blank" rel="external">http://www.jianshu.com/p/0b19b2b954b6</a>  认真看，你就能发现，谷歌排在前面的，前几篇都是一样，互相抄。</p>
+<p>后面就是该提交任务了，你用哪种方式提交就执行哪个<code>main</code>方法，<code>client</code>看了代码比<code>yarn-cluster</code>少，<code>yarn-cluster</code>就是正式提交任务给yarn了，提交任务之后都会分配一个applicationId…..后面的请听下回分解</p>
+
+    </div>
+    <p class="post-meta">
+        <span class="post-cat">分类：
+            <a class="cat-link" href="/categories/源码阅读/">源码阅读</a>
+        </span>
+        <span class="post-tags">
+            标签：
+            
+    
+        <a href="/tags/spark/" title="spark">spark</a> / 
+    
+        <a href="/tags/源码/" title="源码">源码</a>
+    
+
+        </span>
+    </p>
+</article>
+<div class="article-share clearfix text-center">
+    <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</div>
+
+<!-- 上一篇/下一篇 -->
+
+<div class="article-nav clearfix">
+    
+    <span class="prev fl">
+        上一篇<br >
+        <a href="/2016/07/26/dockerStart/">
+            
+                docker 初级
+            
+        </a>
+    </span>
+    
+
+    
+    <span class="next fr">
+        下一篇<br >
+        <a href="/2016/05/07/life1/">
+            
+                正式开更
+            
+        </a>
+    </span>
+    
+</div>
+
+<!-- 文章评论 -->
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2095536"></script>
+<!-- UY END -->
+            </div>
+
+        </section>
+        <!-- 侧栏部分 -->
+<aside class="sidebar">
+    <section class="widget">
+        <h3 class="widget-hd"><strong>文章分类</strong></h3>
+        <!-- 文章分类 -->
+<ul class="widget-bd">
+    
+    <li>
+        <a href="/categories/开源类库/">开源类库</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/容器技术/">容器技术</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/编程语言/">编程语言</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/数据库/">数据库</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/大数据技术/">大数据技术</a>
+        <span class="badge">(5)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/工具使用/">工具使用</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/生活琐事/">生活琐事</a>
+        <span class="badge">(3)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/Web技术/">Web技术</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/资源分享/">资源分享</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/源码阅读/">源码阅读</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-hd"><strong>热门标签</strong></h3>
+        <!-- 文章标签 -->
+<div class="widget-bd tag-wrap">
+  
+    <a class="tag-item" href="/tags/java/" title="java">java (1)</a>
+  
+    <a class="tag-item" href="/tags/avro/" title="avro">avro (1)</a>
+  
+    <a class="tag-item" href="/tags/docker/" title="docker">docker (1)</a>
+  
+    <a class="tag-item" href="/tags/scala/" title="scala">scala (2)</a>
+  
+    <a class="tag-item" href="/tags/代码段/" title="代码段">代码段 (1)</a>
+  
+    <a class="tag-item" href="/tags/GreenPlum/" title="GreenPlum">GreenPlum (2)</a>
+  
+    <a class="tag-item" href="/tags/运维/" title="运维">运维 (1)</a>
+  
+    <a class="tag-item" href="/tags/druid-io/" title="druid-io">druid-io (1)</a>
+  
+    <a class="tag-item" href="/tags/git/" title="git">git (1)</a>
+  
+    <a class="tag-item" href="/tags/生活/" title="生活">生活 (3)</a>
+  
+    <a class="tag-item" href="/tags/nginx/" title="nginx">nginx (1)</a>
+  
+    <a class="tag-item" href="/tags/资源/" title="资源">资源 (1)</a>
+  
+    <a class="tag-item" href="/tags/学习/" title="学习">学习 (1)</a>
+  
+    <a class="tag-item" href="/tags/parquet/" title="parquet">parquet (2)</a>
+  
+    <a class="tag-item" href="/tags/hdfs/" title="hdfs">hdfs (1)</a>
+  
+    <a class="tag-item" href="/tags/SparkStreaming/" title="SparkStreaming">SparkStreaming (1)</a>
+  
+    <a class="tag-item" href="/tags/spark/" title="spark">spark (2)</a>
+  
+    <a class="tag-item" href="/tags/源码/" title="源码">源码 (1)</a>
+  
+    <a class="tag-item" href="/tags/Spark/" title="Spark">Spark (1)</a>
+  
+</div>
+    </section>
+    
+
+    
+    <!-- 我的微博 -->
+    <section class="widget">
+        <h3 class="widget-hd"><strong>我的微博</strong></h3>
+        <div class="widget-bd" style="position: relative;">
+  <div id="myWeiboLoading" class="text-center" style="position:absolute;top:0;left:0;right:0;bottom:0;line-height:50px;font-size:12px;background-color:#fff;z-index:9;">微博加载中...</div>
+  <iframe id="myWeibo" width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=2552539742&verifier=78b487b1&dpc=1"></iframe>
+  <script>
+  (function () {
+    var oMyWeibo = document.getElementById('myWeibo');
+    var oMyWeiboLoading = document.getElementById('myWeiboLoading');
+    var isIE = /msie/i.test(navigator.userAgent) && !window.opera;
+    var timer = null;
+    if (isIE) {
+      oMyWeibo.onreadystatechange = function(){
+        if(oMyWeibo.readyState === 'loaded' || oMyWeibo.readyState === 'complete'){
+          timer = setTimeout(function () {
+            oMyWeiboLoading.parentNode.removeChild(oMyWeiboLoading);
+            timer = null;
+          }, 300);
+        }
+      };
+    } else {
+      oMyWeibo.onload = function () {
+        timer = setTimeout(function () {
+          oMyWeiboLoading.parentNode.removeChild(oMyWeiboLoading);
+          timer = null;
+        }, 300);
+      };
+    }
+  })();
+  </script>
+</div>
+    </section>
+    
+
+    
+</aside>
+<!-- / 侧栏部分 -->
+    </div>
+
+    <!-- 博客底部 -->
+    <footer class="footer">
+    &copy;
+    
+        2016-2017
+    
+
+    <a href="/">Jelon Loves You</a>
+</footer>
+<div class="back-to-top" id="JELON__backToTop" title="返回顶部">返回顶部</div>
+<!-- 添加百度自动推送 --
+
+
+    <!--博客js脚本 -->
+    <!-- 这里放网站js脚本 -->
+<script src="/js/main.js"></script>
+</body>
+</html>
