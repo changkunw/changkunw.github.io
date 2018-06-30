@@ -136,10 +136,10 @@
 
 /**
  * 网站js
- * @author Jelon
+ * @author will
  * @type {{init, toggleMenu}}
  */
-var JELON = function() {
+var WILL = function() {
     return {
         name: 'will',
         version: '0.0.2',
@@ -199,4 +199,4 @@ var JELON = function() {
 /**
  * 程序入口
  */
-JELON.init();
+WILL.init();
